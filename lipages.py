@@ -1,10 +1,10 @@
-print('''
-linked pages, very personal blog script. use at YOUR OWN RISK!!!
+help_info = '''
+linked pages, my personal blog script. use at YOUR OWN RISK!
 > python lipages.py add 2023-12-22-新文章.md "新文章标题" --author "作者名" --tag "标签1" --tag "标签2"
 > python lipages.py rmv 2023-12-22-新文章.md
 > python lipages.py fix 2023-12-22-新文章.md "新的标题"
 > python lipages.py lst
-''')
+'''
 
 import os, re
 import click as cli
@@ -25,8 +25,8 @@ def create_blog_file(filename, title, author, tag):
     the_date = "" if not match else filename[date_strbgn:date_strend]
     #
     ensure_blog_dir()
-    filepath = os.path.join(BLOG_DIR, filename)
-    if os.path.exists(filepath): return (f'__ERROR__: {filepath} already exists! Not added!')
+    filepath = os.path.join(BLOG_DIR, filename) # / * are not filename characters
+    if os.path.exists(filepath): return f'/*ERROR*/: {filepath} already exists! Not added!'
     #
     with open(filepath, 'w', encoding='utf-8') as f:
         f.write("---\n") # line 0  # 这里不要随意增删条目, 否则后面fix/lst处理文章标题时就会出错
@@ -64,8 +64,8 @@ def lipages(): pass
 def add(filename, title, author, tag):
     """Add (initialize) a new blog post."""
     filepath = create_blog_file(filename, title, author, tag)
-    if filepath.startswith('__ERROR__: '):
-        cli.echo(f'Not added for the file `{filename}` already exists!')
+    if filepath.startswith('/*ERROR*/:'):
+        cli.echo(filepath)
     else:
         the_path = update_index('add', filename, title)
         cli.echo(f"Created new blog post at {filepath} and updated {BLOG_INDEX}")
@@ -116,5 +116,10 @@ def lst():
         with open(filepath, 'r', encoding='utf-8') as f: lines = f.readlines()
         title = '' if len(lines)<=1 else lines[1].strip('Title:').strip()  # 注意与文章格式一致!!
         cli.echo(f"{filename} - {title}")
+
+@lipages.command()
+def help():
+    """Print the help information."""
+    print(help_info)
 
 if __name__ == "__main__": lipages()
